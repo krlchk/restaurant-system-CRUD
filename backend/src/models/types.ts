@@ -12,3 +12,11 @@ export interface IOrder {
   total_price: number;
   created_at: Date;
 }
+
+export interface IUser {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+}

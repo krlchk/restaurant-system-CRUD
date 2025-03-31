@@ -11,7 +11,7 @@ export const initDB = async () => {
                 role VARCHAR(50) CHECK (role IN ('admin', 'customer')) NOT NULL
             );
       
-            CREATE TABLE IF NOT EXISTS MenuItems (
+            CREATE TABLE IF NOT EXISTS Menu_Items (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100) NOT NULL,
                 price DECIMAL(10, 2) NOT NULL,
