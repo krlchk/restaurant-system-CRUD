@@ -1,5 +1,6 @@
 import { pool } from "../../config";
 import { IUser } from "../types";
+import bcrypt = require("bcrypt");
 
 export class UserDAO {
   static async createUser(
@@ -7,9 +8,10 @@ export class UserDAO {
     email: string,
     password: string
   ): Promise<IUser> {
+    const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
       "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, 'customer') RETURNING *",
-      [name, email, password]
+      [name, email, hashedPassword]
     );
     return result.rows[0];
   }
@@ -41,5 +43,19 @@ export class UserDAO {
       [id]
     );
     return result.rows[0] || null;
+  }
+  static async verifyUser(
+    email: string,
+    password: string
+  ): Promise<IUser | null> {
+    const result = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+    if (result.rows.length === 0) return null;
+    const user = result.rows[0];
+    const isVerify = await bcrypt.compare(password, user.password);
+    if (!isVerify) return null;
+    return user;
   }
 }

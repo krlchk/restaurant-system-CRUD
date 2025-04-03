@@ -1,6 +1,6 @@
 const React = require("react");
-const http = require("http");
-const ReactDOMServer = require("react-dom/server");
+// const http = require("http");
+// const ReactDOMServer = require("react-dom/server");
 import { Home, Admin, Menu } from "../views";
 import { IncomingMessage, ServerResponse } from "http";
 

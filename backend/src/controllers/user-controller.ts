@@ -1,5 +1,8 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { UserDAO } from "../models/DAO/user-DAO";
+import jwt = require("jsonwebtoken");
+import cookie = require("cookie");
+const SECRET_KEY = "super_secret_key";
 
 export const userController = (req: IncomingMessage, res: ServerResponse) => {
   if (req.method === "POST" && req.url === "/api/users") {
@@ -24,6 +27,57 @@ export const userController = (req: IncomingMessage, res: ServerResponse) => {
         );
       }
     });
+  } else if (req.method === "POST" && req.url === "/api/users/login") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
+    req.on("end", async () => {
+      try {
+        const { email, password } = JSON.parse(body);
+        const user = await UserDAO.verifyUser(email, password);
+        if (!user) {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Invalid email or password" }));
+          return;
+        }
+        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, {
+          expiresIn: "1h",
+        });
+
+        res.setHeader(
+          "Set-Cookie",
+          cookie.serialize("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 3600,
+            path: "/",
+          })
+        );
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Login successful", token, user }));
+      } catch (error) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: error instanceof Error ? error.message : "Unknown error",
+          })
+        );
+      }
+    });
+  } else if (req.method === "POST" && req.url === "/api/users/logout") {
+    res.setHeader(
+      "Set-Cookie",
+      cookie.serialize("token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 3600,
+        path: "/",
+      })
+    );
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ message: "Logout successful" }));
   } else if (req.method === "GET" && req.url === "/api/users") {
     UserDAO.getAllUsers()
       .then((users) => {
@@ -112,7 +166,7 @@ export const userController = (req: IncomingMessage, res: ServerResponse) => {
         res.end(JSON.stringify({ error: error.message }));
       });
   } else {
-    res.writeHead(405);
-    res.end("Method is not allowed");
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "API route not found" }));
   }
 };
