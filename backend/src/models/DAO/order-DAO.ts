@@ -17,4 +17,14 @@ export class OrderDAO {
     );
     return result.rows[0];
   }
+  static async updateOrderStatus(
+    orderId: number,
+    newStatus: string
+  ): Promise<IOrder | null> {
+    const result = await pool.query(
+      "UPDATE orders SET status = $1 WHERE id = $2 RETURNING *",
+      [newStatus, orderId]
+    );
+    return result.rows[0] || null;
+  }
 }

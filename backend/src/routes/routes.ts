@@ -1,11 +1,21 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { userController } from "../controllers/user-controller";
 import { renderPage } from "../controllers/page-controller";
+import { menuController } from "../controllers/menu-controller";
+import { orderController } from "../controllers/order-controller";
 
 export const router = (req: IncomingMessage, res: ServerResponse) => {
   if (req.url?.startsWith("/api")) {
     if (req.url.startsWith("/api/users")) {
       userController(req, res);
+      return;
+    }
+    if (req.url?.startsWith("/api/menu")) {
+      menuController(req, res);
+      return;
+    }
+    if (req.url?.startsWith("/api/orders")) {
+      orderController(req, res);
       return;
     }
     res.writeHead(404, { "Content-Type": "application/json" });

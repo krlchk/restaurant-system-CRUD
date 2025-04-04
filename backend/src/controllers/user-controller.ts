@@ -2,6 +2,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import { UserDAO } from "../models/DAO/user-DAO";
 import jwt = require("jsonwebtoken");
 import cookie = require("cookie");
+// v env
 const SECRET_KEY = "super_secret_key";
 
 export const userController = (req: IncomingMessage, res: ServerResponse) => {
@@ -41,9 +42,13 @@ export const userController = (req: IncomingMessage, res: ServerResponse) => {
           res.end(JSON.stringify({ error: "Invalid email or password" }));
           return;
         }
-        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, {
-          expiresIn: "1h",
-        });
+        const token = jwt.sign(
+          { id: user.id, email: user.email, role: user.role },
+          SECRET_KEY,
+          {
+            expiresIn: "1h",
+          }
+        );
 
         res.setHeader(
           "Set-Cookie",
