@@ -6,12 +6,13 @@ export class UserDAO {
   static async createUser(
     name: string,
     email: string,
-    password: string
+    password: string,
+    role: "customer" | "admin" = "customer"
   ): Promise<IUser> {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, 'customer') RETURNING *",
-      [name, email, hashedPassword]
+      "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *",
+      [name, email, hashedPassword, role]
     );
     return result.rows[0];
   }
@@ -48,10 +49,9 @@ export class UserDAO {
     email: string,
     password: string
   ): Promise<IUser | null> {
-    const result = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
     if (result.rows.length === 0) return null;
     const user = result.rows[0];
     const isVerify = await bcrypt.compare(password, user.password);

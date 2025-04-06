@@ -24,6 +24,11 @@ export const orderController = async (
       res.end(JSON.stringify({ error: "Failed to fetch orders" }));
     }
   } else if (req.method === "POST" && req.url === "/api/orders") {
+    if (user.role !== "customer") {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Only customers can place orders" }));
+      return;
+    }
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
@@ -33,6 +38,7 @@ export const orderController = async (
         res.writeHead(201, { "Content-Type": "application/json" });
         res.end(JSON.stringify(order));
       } catch (err) {
+        console.error("Error while creating order:", err);
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Failed to create order" }));
       }
@@ -57,6 +63,11 @@ export const orderController = async (
       req.on("end", async () => {
         try {
           const { status } = JSON.parse(body);
+          if (!["pending", "cooking", "completed"].includes(status)) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "Invalid status" }));
+            return;
+          }
           const updatedOrder = await OrderDAO.updateOrderStatus(
             orderId,
             status
@@ -70,6 +81,7 @@ export const orderController = async (
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify(updatedOrder));
         } catch (err) {
+          console.error("err mes", err);
           res.writeHead(500, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "Failed to update order status" }));
         }

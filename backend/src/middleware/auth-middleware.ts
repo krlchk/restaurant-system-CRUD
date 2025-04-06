@@ -48,7 +48,7 @@ export const authenticate = (
 export const asyncAuthenticate = (
   req: IncomingMessage,
   res: ServerResponse
-): { id: number; email: string } | null => {
+): { id: number; email: string; role: string } | null => {
   const cookieHeader = req.headers.cookie;
   if (!cookieHeader) {
     res.writeHead(401, { "Content-Type": "application/json" });
@@ -72,6 +72,7 @@ export const asyncAuthenticate = (
     const decoded = jwt.verify(token, SECRET_KEY) as {
       id: number;
       email: string;
+      role: string;
     };
     return decoded;
   } catch (err) {

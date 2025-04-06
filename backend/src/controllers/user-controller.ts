@@ -3,7 +3,7 @@ import { UserDAO } from "../models/DAO/user-DAO";
 import jwt = require("jsonwebtoken");
 import cookie = require("cookie");
 // v env
-const SECRET_KEY = "super_secret_key";
+const SECRET_KEY = "your_secret_key";
 
 export const userController = (req: IncomingMessage, res: ServerResponse) => {
   if (req.method === "POST" && req.url === "/api/users") {
@@ -26,6 +26,20 @@ export const userController = (req: IncomingMessage, res: ServerResponse) => {
             error: error instanceof Error ? error.message : "Unknown error",
           })
         );
+      }
+    });
+  } else if (req.method === "POST" && req.url === "/api/users/create-admin") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", async () => {
+      try {
+        const { name, email, password } = JSON.parse(body);
+        const user = await UserDAO.createUser(name, email, password, "admin"); // передаємо роль
+        res.writeHead(201, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(user));
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Failed to create admin" }));
       }
     });
   } else if (req.method === "POST" && req.url === "/api/users/login") {
