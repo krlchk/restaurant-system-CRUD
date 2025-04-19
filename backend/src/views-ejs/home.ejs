@@ -1,0 +1,15 @@
+<h2>Your Orders</h2>
+
+<% if (user && user.role === 'admin') { %>
+  <p>As an admin, you do not have any orders.</p>
+<% } else { %>
+  <ul>
+    <% orders.forEach(order => { %>
+      <li>
+        <a href="/order/<%= order.id %>">
+          Order #<%= order.id %> - $<%= order.total_price %> - Status: <%= order.status %>
+        </a>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>

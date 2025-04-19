@@ -1,0 +1,62 @@
+<h1>Our Menu</h1>
+
+<ul id="menu-list">
+  <% menuItems.forEach(item => { %>
+    <li>
+      <strong><%= item.name %></strong> - $<%= item.price %>
+      <p><%= item.description %></p>
+      
+      <% if (user && user.role !== 'admin') { %>
+        <button onclick="addToOrder(<%= item.id %>, '<%= item.name %>', <%= item.price %>)">Add</button>
+      <% } %>
+    </li>
+  <% }) %>
+</ul>
+
+
+<% if (user && user.role !== 'admin') { %>
+  <h2>Your Order</h2>
+  <ul id="order-list"></ul>
+  <p>Total: $<span id="total-price">0</span></p>
+  <button onclick="submitOrder()">Submit Order</button>
+<% } %>
+
+<script>
+  const order = [];
+  let totalPrice = 0;
+
+  function addToOrder(id, name, price) {
+    order.push({ id, name, price });
+    totalPrice += price;
+
+    const list = document.getElementById("order-list");
+    const item = document.createElement("li");
+    item.textContent = `${name} - $${price}`;
+    list.appendChild(item);
+
+    document.getElementById("total-price").textContent = totalPrice.toFixed(2);
+  }
+
+  async function submitOrder() {
+    if (order.length === 0) {
+      alert("Your order is empty.");
+      return;
+    }
+
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ total_price: totalPrice }),
+    });
+
+    if (response.ok) {
+      alert("Order placed!");
+      window.location.href = "/";
+    } else {
+      const err = await response.json();
+      alert("Error: " + err.error);
+    }
+  }
+</script>

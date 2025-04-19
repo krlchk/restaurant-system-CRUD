@@ -46,15 +46,10 @@ export const authenticate = (
 };
 
 export const asyncAuthenticate = (
-  req: IncomingMessage,
-  res: ServerResponse
+  req: IncomingMessage
 ): { id: number; email: string; role: string } | null => {
   const cookieHeader = req.headers.cookie;
-  if (!cookieHeader) {
-    res.writeHead(401, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "No token provided" }));
-    return null;
-  }
+  if (!cookieHeader) return null;
 
   const token = cookieHeader
     .split(";")
@@ -62,11 +57,7 @@ export const asyncAuthenticate = (
     .find((c) => c.startsWith("token="))
     ?.split("=")[1];
 
-  if (!token) {
-    res.writeHead(401, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Token not found in cookies" }));
-    return null;
-  }
+  if (!token) return null;
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY) as {
@@ -76,8 +67,33 @@ export const asyncAuthenticate = (
     };
     return decoded;
   } catch (err) {
-    res.writeHead(401, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Invalid or expired token" }));
     return null;
   }
 };
+
+export const getUserFromRequest = (
+  req: IncomingMessage
+): { id: number; email: string; role: string } | null => {
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return null;
+
+  const token = cookieHeader
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith("token="))
+    ?.split("=")[1];
+
+  if (!token) return null;
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY) as {
+      id: number;
+      email: string;
+      role: string;
+    };
+    return decoded;
+  } catch (err) {
+    return null;
+  }
+};
+

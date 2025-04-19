@@ -4,6 +4,7 @@ import {
   asyncAuthenticate,
   authenticate,
   AuthenticatedRequest,
+  getUserFromRequest,
 } from "../middleware/auth-middleware";
 import url = require("url");
 
@@ -11,8 +12,12 @@ export const orderController = async (
   req: IncomingMessage,
   res: ServerResponse
 ) => {
-  const user = asyncAuthenticate(req, res);
-  if (!user) return;
+  const user = await asyncAuthenticate(req);
+  if (!user) {
+    res.writeHead(302, { Location: "/login" });
+    res.end();
+    return;
+  }
 
   if (req.method === "GET" && req.url === "/api/orders") {
     try {
@@ -87,7 +92,38 @@ export const orderController = async (
         }
       });
     });
-  } else {
+  } 
+  // else if (req.method === "POST" && req.url?.startsWith("/confirm-order/")) {
+  //   const urlParts = req.url.split("/");
+    
+  //   // Переконуємося, що URL має правильну кількість елементів
+  //   if (urlParts.length < 3) {
+  //     res.writeHead(400, { "Content-Type": "application/json" });
+  //     res.end(JSON.stringify({ error: "Invalid URL format, missing order ID" }));
+  //     return;
+  //   }
+  
+  //   // Отримуємо останній елемент URL (ID)
+  //   const orderId = parseInt(urlParts[urlParts.length - 1]);
+  
+  //   // Перевірка на валідність orderId
+  //   if (isNaN(orderId)) {
+  //     res.writeHead(400, { "Content-Type": "application/json" });
+  //     res.end(JSON.stringify({ error: "Invalid order ID" }));
+  //     return;
+  //   }
+  
+  //   try {
+  //     await OrderDAO.deleteOrder(orderId);
+  //     res.writeHead(302, { Location: "/" });
+  //     res.end();
+  //   } catch (err) {
+  //     console.error("Delete error", err);
+  //     res.writeHead(500, { "Content-Type": "application/json" });
+  //     res.end(JSON.stringify({ error: "Failed to delete order" }));
+  //   }
+  // }
+   else {
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Order route not found" }));
   }

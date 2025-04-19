@@ -7,6 +7,13 @@ export class OrderDAO {
     return result.rows;
   }
 
+  static async getByUserId(userId: number) {
+    const result = await pool.query("SELECT * FROM orders WHERE user_id = $1", [
+      userId,
+    ]);
+    return result.rows;
+  }
+
   static async createOrder(
     user_id: number,
     total_price: number
@@ -25,6 +32,19 @@ export class OrderDAO {
       "UPDATE orders SET status = $1 WHERE id = $2 RETURNING *",
       [newStatus, orderId]
     );
+    return result.rows[0] || null;
+  }
+  static async deleteOrder(id: number): Promise<IOrder | null> {
+    const result = await pool.query(
+      "DELETE FROM orders WHERE id = $1 RETURNING *",
+      [id]
+    );
+    return result.rows[0] || null;
+  }
+  static async getById(orderId: number) {
+    const result = await pool.query("SELECT * FROM orders WHERE id = $1", [
+      orderId,
+    ]);
     return result.rows[0] || null;
   }
 }

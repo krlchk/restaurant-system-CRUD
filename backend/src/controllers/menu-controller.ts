@@ -1,6 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { MenuItemDAO } from "../models/DAO/menu-Item-DAO";
-import { authenticate } from "../middleware/auth-middleware";
 
 export const menuController = (req: IncomingMessage, res: ServerResponse) => {
   if (req.method === "GET" && req.url === "/api/menu") {

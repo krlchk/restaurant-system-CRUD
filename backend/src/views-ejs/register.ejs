@@ -1,0 +1,44 @@
+<h1>Register</h1>
+<form id="register-form">
+  <label for="name">Name:</label>
+  <input type="text" name="name" id="name" required />
+
+  <label for="email">Email:</label>
+  <input type="email" name="email" id="email" required />
+
+  <label for="password">Password:</label>
+  <input type="password" name="password" id="password" required />
+
+  <button type="submit">Register</button>
+
+  <p id="error-msg" style="color: red;"></p>
+</form>
+
+<script>
+  const form = document.getElementById("register-form");
+  const errorMsg = document.getElementById("error-msg");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    if (response.ok) {
+      window.location.href = "/login";
+    } else {
+      const err = await response.json();
+      errorMsg.textContent = err.error || "Registration failed";
+    }
+  });
+</script>

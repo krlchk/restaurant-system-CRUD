@@ -1,0 +1,74 @@
+<h1>Admin Panel</h1>
+<h2>All Orders</h2>
+
+<table border="1" cellpadding="8" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Order ID</th>
+      <th>User ID</th>
+      <th>Total Price</th>
+      <th>Status</th>
+      <th>Change Status</th>
+    </tr>
+  </thead>
+  <tbody id="orders-table-body">
+    <!-- Orders will be loaded here by JS -->
+  </tbody>
+</table>
+
+<script>
+  async function fetchOrders() {
+  const res = await fetch("/api/orders");
+  const orders = await res.json();
+  console.log("Orders fetched:", orders); // ← ДОДАЙ ЦЕ
+  const tbody = document.getElementById("orders-table-body");
+
+  tbody.innerHTML = "";
+
+  if (!Array.isArray(orders)) {
+    tbody.innerHTML = "<tr><td colspan='5'>No orders found or error occurred</td></tr>";
+    return;
+  }
+
+  orders.forEach(order => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${order.id}</td>
+      <td>${order.user_id}</td>
+      <td>$${order.total_price}</td>
+      <td>${order.status}</td>
+      <td>
+        <select onchange="updateOrderStatus(${order.id}, this.value)">
+          <option value="">--Select--</option>
+          <option value="pending">Pending</option>
+          <option value="cooking">Cooking</option>
+          <option value="completed">Completed</option>
+        </select>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+  async function updateOrderStatus(orderId, newStatus) {
+    const res = await fetch(`/api/orders/${orderId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status: newStatus })
+    });
+
+    if (res.ok) {
+      alert("Order updated!");
+      fetchOrders();
+    } else {
+      const err = await res.json();
+      alert("Error: " + err.error);
+    }
+  }
+
+  fetchOrders();
+</script>
