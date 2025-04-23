@@ -92,37 +92,7 @@ export const orderController = async (
         }
       });
     });
-  } 
-  // else if (req.method === "POST" && req.url?.startsWith("/confirm-order/")) {
-  //   const urlParts = req.url.split("/");
-    
-  //   // Переконуємося, що URL має правильну кількість елементів
-  //   if (urlParts.length < 3) {
-  //     res.writeHead(400, { "Content-Type": "application/json" });
-  //     res.end(JSON.stringify({ error: "Invalid URL format, missing order ID" }));
-  //     return;
-  //   }
-  
-  //   // Отримуємо останній елемент URL (ID)
-  //   const orderId = parseInt(urlParts[urlParts.length - 1]);
-  
-  //   // Перевірка на валідність orderId
-  //   if (isNaN(orderId)) {
-  //     res.writeHead(400, { "Content-Type": "application/json" });
-  //     res.end(JSON.stringify({ error: "Invalid order ID" }));
-  //     return;
-  //   }
-  
-  //   try {
-  //     await OrderDAO.deleteOrder(orderId);
-  //     res.writeHead(302, { Location: "/" });
-  //     res.end();
-  //   } catch (err) {
-  //     console.error("Delete error", err);
-  //     res.writeHead(500, { "Content-Type": "application/json" });
-  //     res.end(JSON.stringify({ error: "Failed to delete order" }));
-  //   }
-  // }
+  }
    else {
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Order route not found" }));

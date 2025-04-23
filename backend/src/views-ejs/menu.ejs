@@ -1,5 +1,5 @@
 <h1>Our Menu</h1>
-
+<div id="message" style="color: green; font-weight: bold; margin-bottom: 10px;"></div>
 <ul id="menu-list">
   <% menuItems.forEach(item => { %>
     <li>
@@ -13,7 +13,6 @@
   <% }) %>
 </ul>
 
-
 <% if (user && user.role !== 'admin') { %>
   <h2>Your Order</h2>
   <ul id="order-list"></ul>
@@ -22,6 +21,15 @@
 <% } %>
 
 <script>
+  function showMessage(msg, color = "green") {
+    const el = document.getElementById("message");
+    el.textContent = msg;
+    el.style.color = color;
+    setTimeout(() => {
+      el.textContent = "";
+    }, 3000);
+  }
+
   const order = [];
   let totalPrice = 0;
 
@@ -39,7 +47,7 @@
 
   async function submitOrder() {
     if (order.length === 0) {
-      alert("Your order is empty.");
+      showMessage("Your order is empty.", "red");
       return;
     }
 
@@ -52,11 +60,11 @@
     });
 
     if (response.ok) {
-      alert("Order placed!");
-      window.location.href = "/";
+      showMessage("Order placed!");
+      setTimeout(() => window.location.href = "/", 1500);
     } else {
       const err = await response.json();
-      alert("Error: " + err.error);
+      showMessage("Error: " + err.error, "red");
     }
   }
 </script>

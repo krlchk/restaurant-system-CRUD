@@ -9,7 +9,7 @@ export interface IOrder {
   id: number;
   user_id: number;
   status: string;
-  total_price: number;
+  total_price: string;
   created_at: Date;
 }
 

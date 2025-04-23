@@ -2,9 +2,12 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "CommonJS",
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
     "strict": true,
-    "jsx": "react"
-  }
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "types": ["jest", "node"]
+  },
+  "include": ["src", "test", "jest.config.js"]
 }

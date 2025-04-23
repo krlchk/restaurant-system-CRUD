@@ -15,15 +15,16 @@ export class OrderDAO {
   }
 
   static async createOrder(
-    user_id: number,
-    total_price: number
+    userId: number,
+    totalPrice: number
   ): Promise<IOrder> {
-    const result = await pool.query(
-      "INSERT INTO orders (user_id, status, total_price, created_at) VALUES ($1, 'pending', $2, NOW()) RETURNING *",
-      [user_id, total_price]
+    const res = await pool.query(
+      "INSERT INTO orders (user_id, total_price) VALUES ($1, $2) RETURNING *",
+      [userId, totalPrice]
     );
-    return result.rows[0];
+    return res.rows[0];
   }
+
   static async updateOrderStatus(
     orderId: number,
     newStatus: "pending" | "cooking" | "completed"

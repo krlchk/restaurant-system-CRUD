@@ -1,56 +1,79 @@
 <% if (user) { %>
-    <h2>Welcome, <%= user.email %>!</h2>
-    <p>Role: <%= user.role %></p>
-  
-    <form id="logout-form">
-      <button type="submit">Logout</button>
-    </form>
-  
-    <script>
-      document.getElementById("logout-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        await fetch("/api/users/logout", { method: "POST" });
-        window.location.href = "/login";
+  <div id="message" style="color: green; font-weight: bold; margin-bottom: 10px;"></div>
+  <h2>Welcome, <%= user.email %>!</h2>
+  <p>Role: <%= user.role %></p>
+
+  <form id="logout-form">
+    <button type="submit">Logout</button>
+  </form>
+
+  <script>
+    function showMessage(msg, color = "green") {
+      const el = document.getElementById("message");
+      el.textContent = msg;
+      el.style.color = color;
+      setTimeout(() => {
+        el.textContent = "";
+      }, 3000);
+    }
+
+    document.getElementById("logout-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await fetch("/api/users/logout", { method: "POST" });
+      showMessage("Logged out successfully!");
+      setTimeout(() => window.location.href = "/login", 1000);
+    });
+  </script>
+<% } else { %>
+  <h1>Login</h1>
+  <div id="message" style="color: green; font-weight: bold; margin-bottom: 10px;"></div>
+  <form id="login-form">
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" required />
+
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="password" required />
+
+    <button type="submit">Login</button>
+    <p id="error-msg" style="color: red;"></p>
+  </form>
+
+  <script>
+    function showMessage(msg, color = "green") {
+      const el = document.getElementById("message");
+      el.textContent = msg;
+      el.style.color = color;
+      setTimeout(() => {
+        el.textContent = "";
+      }, 3000);
+    }
+
+    const form = document.getElementById("login-form");
+    const errorMsg = document.getElementById("error-msg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const email = formData.get("email");
+      const password = formData.get("password");
+
+      const response = await fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-    </script>
-  <% } else { %>
-    <h1>Login</h1>
-    <form id="login-form">
-      <label for="email">Email:</label>
-      <input type="email" name="email" id="email" required />
-  
-      <label for="password">Password:</label>
-      <input type="password" name="password" id="password" required />
-  
-      <button type="submit">Login</button>
-      <p id="error-msg" style="color: red;"></p>
-    </form>
-  
-    <script>
-      const form = document.getElementById("login-form");
-      const errorMsg = document.getElementById("error-msg");
-  
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-  
-        const formData = new FormData(form);
-        const email = formData.get("email");
-        const password = formData.get("password");
-  
-        const response = await fetch("/api/users/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        });
-  
-        if (response.ok) {
-          const { user } = await response.json();
+
+      if (response.ok) {
+        const { user } = await response.json();
+        showMessage("Login successful! Redirecting...");
+        setTimeout(() => {
           window.location.href = user.role === "admin" ? "/admin" : "/";
-        } else {
-          const err = await response.json();
-          errorMsg.textContent = err.error || "Login failed";
-        }
-      });
-    </script>
-  <% } %>
-  
+        }, 1500);
+      } else {
+        const err = await response.json();
+        errorMsg.textContent = err.error || "Login failed";
+      }
+    });
+  </script>
+<% } %>

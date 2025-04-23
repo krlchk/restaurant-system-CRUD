@@ -6,7 +6,7 @@ export class MenuItemDAO {
     const result = await pool.query("SELECT * FROM menu_items");
     return result.rows;
   }
-  static async getById(id: number): Promise<IMenuItem[]> {
+  static async getById(id: number): Promise<IMenuItem | null> {
     const result = await pool.query("SELECT * FROM menu_items WHERE id = $1", [
       id,
     ]);

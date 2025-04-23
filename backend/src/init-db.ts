@@ -23,18 +23,3 @@ export const initDB = async () => {
     console.error("Error initializing database:", err);
   }
 };
-
-// CREATE TABLE IF NOT EXISTS order_items (
-//   order_id INT REFERENCES orders(id),
-//   menu_item_id INT REFERENCES menu_items(id),
-//   quantity INT NOT NULL CHECK (quantity > 0),
-//   PRIMARY KEY (order_id, menu_item_id)
-// );
-
-// CREATE TABLE IF NOT EXISTS users (
-//     id SERIAL PRIMARY KEY,
-//     name VARCHAR(100) NOT NULL,
-//     email VARCHAR(100) UNIQUE NOT NULL,
-//     password TEXT NOT NULL,
-//     role VARCHAR(50) CHECK (role IN ('admin', 'customer')) NOT NULL
-// );
