@@ -2,7 +2,7 @@ import path = require("path");
 import ejs = require("ejs");
 import { ServerResponse } from "http";
 import fs = require("fs");
-
+import logger from "./logger";
 
 export const renderEJS = (
   res: ServerResponse,
@@ -14,6 +14,7 @@ export const renderEJS = (
 
   fs.readFile(viewPath, "utf8", (err, content) => {
     if (err) {
+      logger.error(`Error reading view file: ${view}.ejs`);
       res.writeHead(500, { "Content-Type": "text/plain" });
       res.end("Error rendering page");
       return;
@@ -23,6 +24,7 @@ export const renderEJS = (
 
     fs.readFile(layoutPath, "utf8", (layoutErr, layoutContent) => {
       if (layoutErr) {
+        logger.error("Error reading layout.ejs");
         res.writeHead(500, { "Content-Type": "text/plain" });
         res.end("Error rendering layout");
         return;
@@ -32,6 +34,7 @@ export const renderEJS = (
 
       res.writeHead(200, { "Content-Type": "text/html" });
       res.end(fullHtml);
+      logger.info(`Successfully rendered view: ${view}.ejs`);
     });
   });
 };
